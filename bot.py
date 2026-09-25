@@ -84,4 +84,27 @@ async def compliment(interaction: discord.Interaction):
         f"🐏 {choice}"
     )
 
+# ----------- Greeting Command -----------
+@client.event
+async def on_message(message):
+    if message.author == client.user:
+        return
+
+    text = message.content.lower()
+
+    if text == "gn":
+        await message.channel.send("good night! 🌙")
+
+    elif text == "oya" or text == "oyasumi":
+        await message.channel.send("Oyasumi! 🌙")
+
+    elif text == "gm":
+        await message.channel.send("good morning! ☀️")
+
+    elif text == "oha" or text == "ohayo":
+            await message.channel.send("Ohayo! ☀️")
+
+    elif "sheep" in text or "hitsuji" in text:
+        await message.add_reaction("Baa 🐑")
+
 client.run(os.getenv("DISCORD_TOKEN"))  # Use the token from the .env file
