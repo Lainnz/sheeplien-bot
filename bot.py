@@ -2,6 +2,7 @@ import discord
 import asyncio
 import random
 import os
+import json
 
 from discord import app_commands
 from dotenv import load_dotenv
@@ -14,6 +15,8 @@ dinner_options = [
     "Hungry Jack's",
     "Malatang"
 ]
+
+compliments = json.loads(os.getenv("COMPLIMENTS"))
 
 class MyClient(discord.Client):
     def __init__(self):
@@ -67,6 +70,18 @@ async def remind(
 
     await interaction.followup.send(
         f"🐏 {interaction.user.mention}, wakey! Remember to **{message}**!"
+    )
+
+# ----------- Compliment Command -----------
+@client.tree.command(
+    name="compliment",
+    description="Get a compliment from Sheeplien!"
+)
+async def compliment(interaction: discord.Interaction):
+    choice = random.choice(compliments)
+
+    await interaction.response.send_message(
+        f"🐏 {choice}"
     )
 
 client.run(os.getenv("DISCORD_TOKEN"))  # Use the token from the .env file
