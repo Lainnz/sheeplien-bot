@@ -7,7 +7,6 @@ from discord import app_commands
 from dotenv import load_dotenv
 
 load_dotenv()  # Load environment variables from .env file
-GUILD_ID = int(os.getenv("GUILD_ID"))  # Get the guild ID from the environment variable
 
 dinner_options = [
     "Subway",
@@ -24,14 +23,7 @@ class MyClient(discord.Client):
 
     async def setup_hook(self):
         # Sync the application commands with Discord
-        guild = discord.Object(id=GUILD_ID)
-
-        self.tree.copy_global_to(guild=guild)
-        synced = await self.tree.sync(guild=guild)
-
-        print(f"Synced {len(synced)} commands to test server:")
-        for command in synced:
-            print(f"- /{command.name}")
+        await self.tree.sync()
 
 client = MyClient()
 
