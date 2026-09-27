@@ -106,6 +106,26 @@ async def on_message(message):
             await message.channel.send("Ohayo! ☀️")
 
     elif "sheep" in text or "hitsuji" in text:
-        await message.add_reaction("Baa 🐑")
+        await message.add_reaction("🐑")
+
+# ----------- Speak Mode Command -----------
+@client.tree.command(name="speakon", description="Turn on Sheeplien's talking mode")
+async def speakon(interaction: discord.Interaction):
+    global speaking_mode
+    speaking_mode = True
+
+    await interaction.response.send_message(
+        "🐏 Sheeplien is awake!"
+    )
+
+
+@client.tree.command(name="speakoff", description="Turn off Sheeplien's talking mode")
+async def speakoff(interaction: discord.Interaction):
+    global speaking_mode
+    speaking_mode = False
+
+    await interaction.response.send_message(
+        "💤 Sheeplien has stopped talking."
+    )
 
 client.run(os.getenv("DISCORD_TOKEN"))  # Use the token from the .env file
