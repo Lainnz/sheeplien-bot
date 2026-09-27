@@ -9,6 +9,8 @@ from dotenv import load_dotenv
 
 load_dotenv()  # Load environment variables from .env file
 
+speaking_mode = False
+
 dinner_options = [
     "Subway",
     "McDonald's",
@@ -107,6 +109,14 @@ async def on_message(message):
 
     elif "sheep" in text or "hitsuji" in text:
         await message.add_reaction("🐑")
+    
+    # Don't respond when speaking mode is off
+    if not speaking_mode:
+        return
+
+    # Speaking mode
+    if speaking_mode:
+        print(message.content)
 
 # ----------- Speak Mode Command -----------
 @client.tree.command(name="speakon", description="Turn on Sheeplien's talking mode")
@@ -127,18 +137,5 @@ async def speakoff(interaction: discord.Interaction):
     await interaction.response.send_message(
         "💤 Sheeplien has stopped talking."
     )
-
-@client.event
-async def on_message(message):
-
-    # Don't respond to itself
-    if message.author == client.user:
-        return
-
-    # Don't respond when speaking mode is off
-    if not speaking_mode:
-        return
-
-    print(message.content)
 
 client.run(os.getenv("DISCORD_TOKEN"))  # Use the token from the .env file
