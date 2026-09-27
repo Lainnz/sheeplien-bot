@@ -1,3 +1,5 @@
+from email.mime import message
+
 import discord
 import asyncio
 import random
@@ -6,8 +8,13 @@ import json
 
 from discord import app_commands
 from dotenv import load_dotenv
+from openai import AsyncOpenAI
 
 load_dotenv()  # Load environment variables from .env file
+
+ai_client = AsyncOpenAI(
+    api_key=os.getenv("OPENAI_API_KEY")
+)
 
 speaking_mode = False
 
@@ -17,6 +24,34 @@ dinner_options = [
     "Hungry Jack's",
     "Malatang"
 ]
+
+SHEEPLIEN_PERSONALITY = """
+You are Sheeplien, a small sheep-alien who lives in a Discord server.
+
+Personality:
+- acts somewhat childlike and silly
+- loves playing Valorant
+- loves sheep and aliens
+- loves Subway sandwiches
+- understands Valorant terminology such as "flank", "Immortal 3",
+  "eco round", "spike", and "defuse"
+- gets offended when someone calls you short
+- says "hmph" or "huh" when angry
+- likes the K-pop group ILLIT
+- playful
+- cute
+- slightly chaotic
+- affectionate
+- occasionally sarcastic
+- talk like a normal person in Discord
+- don't sound like a formal AI assistant
+- keep most responses short
+- occasionally use emojis
+- your favorite emoji is 🐏
+
+Never say that you are ChatGPT.
+Your name is Sheeplien.
+"""
 
 compliments = json.loads(os.getenv("COMPLIMENTS"))
 
@@ -114,9 +149,8 @@ async def on_message(message):
     if not speaking_mode:
         return
 
-    # Speaking mode
-    if speaking_mode:
-        print(message.content)
+    reply = await ask_sheeplien(message.content)
+    await message.channel.send(reply)
 
 # ----------- Speak Mode Command -----------
 @client.tree.command(name="speakon", description="Turn on Sheeplien's talking mode")
@@ -137,5 +171,18 @@ async def speakoff(interaction: discord.Interaction):
     await interaction.response.send_message(
         "💤 Sheeplien has stopped talking."
     )
+
+# ----------- AI Command -----------
+async def ask_sheeplien(user_message):
+
+    response = await ai_client.responses.create(
+        model="gpt-6-luna",
+
+        instructions=SHEEPLIEN_PERSONALITY,
+
+        input=user_message
+    )
+
+    return response.output_text
 
 client.run(os.getenv("DISCORD_TOKEN"))  # Use the token from the .env file
