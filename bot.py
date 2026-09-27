@@ -128,4 +128,17 @@ async def speakoff(interaction: discord.Interaction):
         "💤 Sheeplien has stopped talking."
     )
 
+@client.event
+async def on_message(message):
+
+    # Don't respond to itself
+    if message.author == client.user:
+        return
+
+    # Don't respond when speaking mode is off
+    if not speaking_mode:
+        return
+
+    print(message.content)
+
 client.run(os.getenv("DISCORD_TOKEN"))  # Use the token from the .env file
