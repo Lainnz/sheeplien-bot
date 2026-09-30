@@ -5,6 +5,7 @@ import asyncio
 import random
 import os
 import json
+import aiohttp
 
 from discord import app_commands
 from dotenv import load_dotenv
@@ -17,6 +18,8 @@ ai_client = AsyncOpenAI(
 )
 
 speaking_mode = False
+
+valorant_riot_id = None
 
 conversation_history = []
 
@@ -57,6 +60,8 @@ Your name is Sheeplien.
 """
 
 compliments = json.loads(os.getenv("COMPLIMENTS"))
+
+HENRIK_API_KEY = os.getenv("HENRIK_API_KEY")
 
 class MyClient(discord.Client):
     def __init__(self):
@@ -206,5 +211,39 @@ async def ask_sheeplien(user_message):
         del conversation_history[:-20]
 
     return reply
+
+# ----------- Link Valorant Account Command -----------
+@client.tree.command(
+    name="linkvalorant",
+    description="Link a Valorant Riot ID to Sheeplien"
+)
+async def linkvalorant(
+    interaction: discord.Interaction,
+    riot_id: str
+):
+    global valorant_riot_id
+
+    valorant_riot_id = riot_id
+
+    await interaction.response.send_message(
+        f"🐏 Valorant account linked: **{valorant_riot_id}**"
+    )
+
+# ----------- Valorant Rank Command -----------
+@client.tree.command(
+    name="rank",
+    description="Check the linked Valorant rank"
+)
+async def rank(interaction: discord.Interaction):
+
+    if valorant_riot_id is None:
+        await interaction.response.send_message(
+            "🐏 No Valorant account is linked!"
+        )
+        return
+
+    await interaction.response.send_message(
+        f"🐏 Checking rank for **{valorant_riot_id}**..."
+    )
 
 client.run(os.getenv("DISCORD_TOKEN"))  # Use the token from the .env file
