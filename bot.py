@@ -1,5 +1,3 @@
-from email.mime import message
-
 import discord
 import asyncio
 import random
@@ -215,7 +213,7 @@ async def ask_sheeplien(user_message):
 # ----------- Link Valorant Account Command -----------
 @client.tree.command(
     name="linkvalorant",
-    description="Link a Valorant Riot ID to Sheeplien"
+    description="Link your Valorant Riot ID"
 )
 async def linkvalorant(
     interaction: discord.Interaction,
@@ -223,27 +221,56 @@ async def linkvalorant(
 ):
     global valorant_riot_id
 
+    if "#" not in riot_id:
+        await interaction.response.send_message(
+            "🐏 Invalid Riot ID! Use something like `Sheep#NA1`."
+        )
+        return
+
     valorant_riot_id = riot_id
 
     await interaction.response.send_message(
-        f"🐏 Valorant account linked: **{valorant_riot_id}**"
+        f"🐏 Linked Valorant account: **{valorant_riot_id}**"
     )
-
 # ----------- Valorant Rank Command -----------
+async def get_valorant_rank(name, tag):
+
+    url = f"https://api.henrikdev.xyz/valorant/v3/mmr/ap/pc/{name}/{tag}"
+
+    headers = {
+        "Authorization": HENRIK_API_KEY
+    }
+
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url, headers=headers) as response:
+
+            data = await response.json()
+
+            print("HTTP Status:", response.status)
+            print("Valorant API Response:", data)
+
+            return data
+
 @client.tree.command(
     name="rank",
-    description="Check the linked Valorant rank"
+    description="Check your linked Valorant rank"
 )
 async def rank(interaction: discord.Interaction):
 
     if valorant_riot_id is None:
         await interaction.response.send_message(
-            "🐏 No Valorant account is linked!"
+            "🐏 No Valorant account linked!"
         )
         return
 
-    await interaction.response.send_message(
-        f"🐏 Checking rank for **{valorant_riot_id}**..."
+    name, tag = valorant_riot_id.split("#", 1)
+
+    await interaction.response.defer()
+
+    data = await get_valorant_rank(name, tag)
+
+    await interaction.followup.send(
+        "🐏 Got the Valorant data! Check Railway logs."
     )
 
 client.run(os.getenv("DISCORD_TOKEN"))  # Use the token from the .env file
