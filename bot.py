@@ -269,8 +269,11 @@ async def rank(interaction: discord.Interaction):
 
     data = await get_valorant_rank(name, tag)
 
+    current_rank = data["data"]["current"]["tier"]["name"]
+    current_rr = data["data"]["current"]["rr"]
+
     await interaction.followup.send(
-        "🐏 Got the Valorant data! Check Railway logs."
+        f"🐏 **{valorant_riot_id}** is **{current_rank}** with **{current_rr} RR**!"
     )
 
 client.run(os.getenv("DISCORD_TOKEN"))  # Use the token from the .env file
