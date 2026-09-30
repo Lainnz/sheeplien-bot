@@ -18,6 +18,8 @@ ai_client = AsyncOpenAI(
 
 speaking_mode = False
 
+conversation_history = []
+
 dinner_options = [
     "Subway",
     "McDonald's",
@@ -150,7 +152,9 @@ async def on_message(message):
     if not speaking_mode:
         return
 
-    reply = await ask_sheeplien(message.content)
+    reply = await ask_sheeplien(
+        f"{message.author.display_name}: {message.content}"
+    )   
     await message.channel.send(reply)
 
 # ----------- Speak Mode Command -----------
@@ -176,14 +180,31 @@ async def speakoff(interaction: discord.Interaction):
 # ----------- AI Command -----------
 async def ask_sheeplien(user_message):
 
-    response = await ai_client.responses.create(
-        model="gpt-6-luna",
-
-        instructions=SHEEPLIEN_PERSONALITY,
-
-        input=user_message
+    conversation_history.append(
+        {
+            "role": "user",
+            "content": user_message
+        }
     )
 
-    return response.output_text
+    response = await ai_client.responses.create(
+        model="gpt-6-luna",
+        instructions=SHEEPLIEN_PERSONALITY,
+        input=conversation_history
+    )
+
+    reply = response.output_text
+
+    conversation_history.append(
+        {
+            "role": "assistant",
+            "content": reply
+        }
+    )
+
+    if len(conversation_history) > 20:
+        del conversation_history[:-20]
+
+    return reply
 
 client.run(os.getenv("DISCORD_TOKEN"))  # Use the token from the .env file
